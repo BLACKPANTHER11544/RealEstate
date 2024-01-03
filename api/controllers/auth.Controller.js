@@ -14,3 +14,5 @@ export const SignUp = async (req, res, next) => {
     next(error);
   }
 };
+
+// note username = test1 , password = test1 , this is for testing purpose
