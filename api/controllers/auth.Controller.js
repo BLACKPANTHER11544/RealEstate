@@ -35,3 +35,39 @@ export const SignIn = async (req, res, next) => {
   }
 };
 // note username = test1 , password = test1 , this is for testing purpose
+
+export const GoogleF = async (req, res, next) => {
+  try {
+    const validUser = await UserModel.findOne({ email: req.body.email });
+    if (validUser) {
+      const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+      const { password: pass, ...rest } = user._doc;
+      res
+        .cookie("access-token", token, { httpOnly: true })
+        .status(200)
+        .json(rest);
+    } else {
+      const generatePassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hanshedPassword = bcryptjs.hashSync(generatePassword, 10);
+      const newUser = new UserModel({
+        username:
+          req.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-6),
+        email: req.body.email,
+        password: hanshedPassword,
+        avatar: req.body.photo,
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password: pass, ...rest } = newUser._doc;
+      res
+        .cookie("access-token", token, { httpOnly: true })
+        .status(200)
+        .json(rest);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
