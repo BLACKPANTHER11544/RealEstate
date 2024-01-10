@@ -11,8 +11,12 @@ import {
   UpdateUserFailure,
   UpdateUserStart,
   UpdateUserSuccess,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
 } from "../redux/User/UserSlice";
 import { useDispatch } from "react-redux";
+import { errorHandler } from "../../../api/utilis/error";
 export default function Profile() {
   const dispatch = useDispatch();
   const fileRef = useRef(null);
@@ -84,6 +88,22 @@ export default function Profile() {
       dispatch(UpdateUserFailure(error.message));
     }
   };
+  const handleDelete = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/deleteUser/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(errorHandler(error.message));
+    }
+  };
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -145,12 +165,14 @@ export default function Profile() {
         </button>
       </form>
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete account</span>
+        <span onClick={handleDelete} className="text-red-700 cursor-pointer">
+          Delete account
+        </span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
       <p className="text-red-700 mt-5">{error ? error : ""}</p>
       <p className="text-green-700 mt-5">
-        {UpdateUserSuccess ? "User updated successfully" : ""}
+        {updateUser ? "User updated successfully" : ""}
       </p>
     </div>
   );
