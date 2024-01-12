@@ -1,6 +1,7 @@
 import { errorHandler } from "../utilis/error.js";
 import bcryptjs from "bcrypt";
 import UserModel from "../models/user.module.js";
+import ListingModel from "../models/Listing.module.js";
 
 export const test = (req, res) => {
   res.json({
@@ -45,5 +46,18 @@ export const deleteUser = async (req, res, next) => {
     res.status(200).json("User has been deleted");
   } catch (error) {
     next(error);
+  }
+};
+
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await ListingModel.find({ userRef: req.params.id });
+      res.status(200).json(listings);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    return next(errorHandler(401, "You can only view your own listings!"));
   }
 };
