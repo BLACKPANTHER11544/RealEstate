@@ -61,3 +61,16 @@ export const getUserListings = async (req, res, next) => {
     return next(errorHandler(401, "You can only view your own listings!"));
   }
 };
+
+export const getLandLord = async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.params.id);
+    if (!user) {
+      return next(errorHandler(401, "Land Lord not found "));
+    }
+    const { password: pass, ...rest } = user._doc;
+    res.status(201).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
